@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>推箱子</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      .cont {
+        position: relative;
+        width: 500px;
+        margin: 0 auto;
+      }
+      .root {
+        width: 100%;
+        display: grid;
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+      }
+      .item {
+        position: relative;
+        padding-bottom: 100%;
+      }
+      .item_n {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 90%;
+        border-radius: 15%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+      }
+      .no {
+        background-color: rgb(198, 7, 7);
+      }
+      .box {
+        background-color: #fa9f8a;
+        color: #fff;
+      }
+      .my {
+        background-color: blue;
+        color: #fff;
+      }
+      .root_keng {
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: grid;
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        z-index: -1;
+      }
+      .root_keng .item_n {
+        background-color: aquamarine;
+      }
+      .keng {
+        background-color: #818181 !important;
+        color: #fff;
+        border-radius: 50%;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 50px;
+        padding-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="title">推箱子</h1>
+    <div class="cont">
+      <div class="root"></div>
+      <div class="root_keng"></div>
+    </div>
+    <script>
+      const checkpoint = [
+        {
+          title: "第一关",
+          arrs: [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 0, 0, 0, 0, 1, 0, 0, 2],
+            [2, 2, 0, 0, 0, 0, 0, 0, 0, 2],
+            [2, 2, 0, 0, 0, 0, 0, 0, 0, 2],
+            [2, 2, 0, 3, 0, 0, 0, 0, 0, 2],
+            [2, 2, 2, 0, 2, 0, 0, 0, 0, 2],
+            [2, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+            [2, 3, 3, 0, 0, 2, 0, 2, 2, 2],
+            [2, 4, 4, 4, 0, 0, 0, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          ],
+        },
+        {
+          title: "第二关",
+          arrs: [
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 0, 0, 0, 0, 1, 0, 0, 2],
+            [2, 2, 0, 0, 0, 0, 0, 0, 0, 2],
+            [2, 2, 0, 0, 0, 0, 0, 0, 0, 2],
+            [2, 2, 0, 3, 0, 0, 0, 0, 0, 2],
+            [2, 2, 2, 0, 2, 0, 0, 0, 0, 2],
+            [2, 4, 2, 0, 0, 0, 0, 0, 0, 2],
+            [2, 4, 3, 0, 0, 2, 0, 2, 2, 2],
+            [2, 4, 0, 0, 0, 3, 0, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+          ],
+        },
+      ];
+      //1小人  2墙  3箱子  4坑
+      let box_arr = [];
+      checkpoint_num = 1; //关卡数
+      let keng_arr = [];
+      box_arr = checkpoint[checkpoint_num - 1].arrs;
+      renderOnce();
+      render();
+      getKengIndex();
+      //渲染物体
+      function render() {
+        const el = document.querySelector(".root");
+        el.innerHTML = "";
+        box_arr.forEach((item_one) => {
+          item_one.forEach((item_two) => {
+            let el_item = document.createElement("div");
+            el_item.setAttribute("class", "item");
+            el_item.innerHTML = `<div class="item_n"></div>`;
+            if (item_two == 1) {
+              el_item.setAttribute("class", "item item_red");
+              el_item.innerHTML = `<div class="item_n my">我</div>`;
+            }
+            if (item_two == 2) {
+              el_item.setAttribute("class", "item");
+              el_item.innerHTML = `<div class="item_n no"></div>`;
+            }
+            if (item_two == 3) {
+              el_item.setAttribute("class", "item item_red");
+              el_item.innerHTML = `<div class="item_n box">箱子</div>`;
+            }
+            el.appendChild(el_item);
+          });
+        });
+      }
+      //渲染底部背景和坑
+      function renderOnce(params) {
+        const el_two = document.querySelector(".root_keng");
+        const title = document.querySelector(".title");
+        title.innerHTML = "填坑大作战  " + checkpoint[checkpoint_num - 1].title;
+        el_two.innerHTML = "";
+        box_arr.forEach((item_one) => {
+          item_one.forEach((item_two) => {
+            let el_item_two = document.createElement("div");
+            el_item_two.setAttribute("class", "item");
+            el_item_two.innerHTML = `<div class="item_n"></div>`;
+            if (item_two == 4) {
+              el_item_two.setAttribute("class", "item item_red");
+              el_item_two.innerHTML = `<div class="item_n keng">坑</div></div>`;
+            }
+            el_two.appendChild(el_item_two);
+          });
+        });
+      }
+      // 判断我的下标
+      function getIndex() {
+        let index_arr = [];
+        box_arr.forEach((item_one, index1) => {
+          item_one.forEach((item_two, index2) => {
+            if (item_two == 1) {
+              index_arr = [index1, index2];
+            }
+          });
+        });
+        return index_arr;
+      }
+      // 查看坑位
+      function getKengIndex() {
+        keng_arr = [];
+        box_arr.forEach((item_one, index1) => {
+          item_one.forEach((item_two, index2) => {
+            if (item_two == 4) {
+              keng_arr.push([index1, index2]);
+            }
+          });
+        });
+      }
+      // 是否通关
+      function isOk() {
+        let ok = true;
+        for (let i = 0; i < keng_arr.length; i++) {
+          if (box_arr[keng_arr[i][0]][keng_arr[i][1]] !== 3) {
+            ok = false;
+          }
+        }
+        return ok;
+      }
+      //键盘事件
+      document.addEventListener(
+        "keydown",
+        debounce(function (event) {
+          let indexArrs = [];
+          indexArrs = getIndex();
+          let one = indexArrs[0];
+          let two = indexArrs[1];
+          if (event.keyCode === 37) {
+            // 左箭头键
+            if (box_arr[one][two - 1] == 3) {
+              if (box_arr[one][two - 2] == 2 || box_arr[one][two - 2] == 3)
+                return;
+              box_arr[one][two] = 0;
+              box_arr[one][two - 1] = 1;
+              box_arr[one][two - 2] = 3;
+            } else {
+              if (box_arr[one][two - 1] == 2) return;
+              box_arr[one][two] = 0;
+              box_arr[one][two - 1] = 1;
+            }
+          } else if (event.keyCode === 38) {
+            // 上箭头键
+            if (box_arr[one - 1][two] == 3) {
+              if (box_arr[one - 2][two] == 2 || box_arr[one - 2][two] == 3)
+                return;
+              box_arr[one][two] = 0;
+              box_arr[one - 1][two] = 1;
+              box_arr[one - 2][two] = 3;
+            } else {
+              if (box_arr[one - 1][two] == 2) return;
+              box_arr[one][two] = 0;
+              box_arr[one - 1][two] = 1;
+            }
+          } else if (event.keyCode === 39) {
+            // 右箭头键
+            if (box_arr[one][two + 1] == 3) {
+              if (box_arr[one][two + 2] == 2 || box_arr[one][two + 2] == 3)
+                return;
+              box_arr[one][two] = 0;
+              box_arr[one][two + 1] = 1;
+              box_arr[one][two + 2] = 3;
+            } else {
+              if (box_arr[one][two + 1] == 2) return;
+              box_arr[one][two] = 0;
+              box_arr[one][two + 1] = 1;
+            }
+          } else if (event.keyCode === 40) {
+            // 下箭头键
+            if (box_arr[one + 1][two] == 3) {
+              if (box_arr[one + 2][two] == 2 || box_arr[one + 2][two] == 3)
+                return;
+              box_arr[one][two] = 0;
+              box_arr[one + 1][two] = 1;
+              box_arr[one + 2][two] = 3;
+            } else {
+              if (box_arr[one + 1][two] == 2) return;
+              box_arr[one][two] = 0;
+              box_arr[one + 1][two] = 1;
+            }
+          }
+          render();
+          if (isOk()) {
+            setTimeout(() => {
+              let a = confirm("通关成功,确定进入下一关吗?");
+              if (a) {
+                if (checkpoint_num == 2) {
+                  alert("您已全部通关");
+                  return;
+                }
+                checkpoint_num++;
+                box_arr = checkpoint[checkpoint_num - 1].arrs;
+                renderOnce();
+                render();
+                getKengIndex();
+              } else {
+              }
+            }, 500);
+          }
+        }, 100)
+      );
+      //防抖
+      function debounce(func, delay) {
+        let timer;
+        return function () {
+          const context = this;
+          const args = arguments;
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            func.apply(context, args);
+          }, delay);
+        };
+      }
+    </script>
+  </body>
+</html>
